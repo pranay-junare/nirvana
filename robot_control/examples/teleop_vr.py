@@ -94,14 +94,14 @@ class MoveVR(MujocoGymAppHighFidelity):
             right_pos = (np.array(R["pos"]) - self.curr_right_controller["pos"]) * SCALE_POS 
             temp = right_pos[2]
             right_pos[2] = right_pos[1]
-            right_pos[1] = temp
+            right_pos[1] = -temp
             right_pos[0] = -right_pos[0]
 
             # Right rotation adjustment
             right_rot = np.array(R["rot"]) * SCALE_ROT
             right_rot[0] = 0 # roll
             right_rot[1] = 0  # pitch
-            right_rot[2] = right_rot[2]   # yaw
+            right_rot[2] = right_rot[2] # yaw
 
             self.right_wp = right_pos + self.curr_right_robot["pos"]
             self.right_rot = right_rot + self.curr_right_robot["rot"]
@@ -155,5 +155,9 @@ class MoveVR(MujocoGymAppHighFidelity):
 
 
 if __name__ == "__main__":
-    mujoco = MoveVR("move_to_point.yaml", "kinect_environment.xml")
+    # mujoco = MoveVR("move_to_point.yaml", "kinect_environment.xml")
+    # mujoco = MoveVR("move_to_point.yaml", "quad_insert.xml")
+    mujoco = MoveVR("move_to_point.yaml", "scene_vr.xml")
+    # mujoco = MoveVR("move_to_point.yaml", "scene_google.xml")
+
     asyncio.run(mujoco.run_async())
