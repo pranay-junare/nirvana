@@ -11,8 +11,8 @@ from robot_control.utils.target import Target
 
 VR_IP = "100.70.51.33"
 VR_PORT = 8765
-SCALE_POS   = 0.5
-SCALE_ROT   = 1.0
+SCALE_POS   = 0.2
+SCALE_ROT   = 0
 GRIP_THRESH = 0.5
 RIGHT_HOME = [0.4, 0.4, 0.4]
 LEFT_HOME = [-0.4, 0.4, 0.4]
@@ -74,8 +74,8 @@ class MoveVR(MujocoGymAppHighFidelity):
         self.right_wp = np.array(R["pos"]) * SCALE_POS + np.array(RIGHT_HOME)
         self.left_wp  = np.array(L["pos"]) * SCALE_POS + np.array(LEFT_HOME)
 
-        self.right_rot = np.array(R["rot"]) * SCALE_ROT
-        self.left_rot  = np.array(L["rot"]) * SCALE_ROT
+        self.right_rot = np.array(R["rot"]) * SCALE_ROT + np.array([0, -np.pi/2, 0])
+        self.left_rot  = np.array(L["rot"]) * SCALE_ROT + np.array([0, -np.pi/2, 0])
 
         self.right_grip = -1.0 if R["trigger"] < 0.5 else 0
         self.left_grip  = -1.0 if L["trigger"] < 0.5 else 0

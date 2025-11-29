@@ -6,6 +6,7 @@ XR based Teleoperation framework
 ```bash
 conda env create -f requirements/env.yaml
 pip install -r requirements/requirements.txt
+conda activate nirvana
 ```
 
 ## Run
@@ -14,3 +15,13 @@ python -m robot_control.examples.move_to_point
 python -m robot_control.examples.teleop_keyboard
 python -m robot_control.examples.teleop_vr
 ```
+
+## ToDo
+- [x] App for sending quest-controller commands
+- [x] Bimanual UR5 MujoCo Setup
+- [x] Websocket server for communication
+- [x] Keyboard based teleoperation
+- [ ] Gripper control with trigger
+- [ ] Visualize the XR controller inputs(matplotlib, cv2, etc) 
+- [ ] Mapping functions from XR-controller to Robot commands
+- [ ] Push based activatation
