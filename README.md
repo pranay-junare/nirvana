@@ -25,7 +25,7 @@ python -m robot_control.examples.teleop_vr
 - [ ] Visualize the XR controller inputs(matplotlib, cv2, etc) 
 - [ ] Mapping functions from XR-controller to Robot commands
 - [ ] Push based activatation
-- [ ] App: Renaming, check for Video stream
+- [ ] App: Renaming, check for Video stream, send buttons
  
 
 

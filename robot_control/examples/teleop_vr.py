@@ -11,9 +11,8 @@ from robot_control.utils.target import Target
 
 VR_IP = "100.70.51.33"
 VR_PORT = 8765
-SCALE_POS   = 1 # 0.6 works well
-SCALE_ROT   = 0
-GRIP_THRESH = 0.5
+SCALE_POS   = 0.8 # 0.6 works well
+SCALE_ROT   = 2.0
 RIGHT_HOME = [0.4, 0.4, 0.4]
 LEFT_HOME = [-0.4, 0.4, 0.4]
 
@@ -40,9 +39,13 @@ class MoveVR(MujocoGymAppHighFidelity):
         self.right_activated = False
         self.left_activated  = False
 
-        self.curr_right_controller = np.array([0.20, 0.75, 0.25])
-        
-        self.curr_robot_position = np.array(RIGHT_HOME)
+        self.curr_right_controller: Dict[str, np.ndarray] = dict()
+        self.curr_right_controller["pos"] = np.array([0.20, 0.75, 0.25])
+        self.curr_right_controller["rot"] = np.array([0, 0, 0])
+
+        self.curr_right_robot: Dict[str, np.ndarray] = dict()
+        self.curr_right_robot["pos"] = np.array(RIGHT_HOME)
+        self.curr_right_robot["rot"] = np.array([0, -np.pi/2, 0])
         
         self.vr_data_init = None  
 
@@ -87,20 +90,29 @@ class MoveVR(MujocoGymAppHighFidelity):
         self.left_activated  = True if L["push"] > 0.5 else False
 
         if self.right_activated:        
-            # right_pos = (np.array(R["pos"]) - np.array([0.20, 0.75, 0.25])) * SCALE_POS 
-            right_pos = (np.array(R["pos"]) - self.curr_right_controller) * SCALE_POS 
+            # Right position adjustment
+            right_pos = (np.array(R["pos"]) - self.curr_right_controller["pos"]) * SCALE_POS 
             temp = right_pos[2]
             right_pos[2] = right_pos[1]
             right_pos[1] = temp
             right_pos[0] = -right_pos[0]
 
-            self.right_wp = right_pos + self.curr_robot_position
-            self.right_rot = np.array(R["rot"]) * SCALE_ROT + np.array([0, -np.pi/2, 0])
+            # Right rotation adjustment
+            right_rot = np.array(R["rot"]) * SCALE_ROT
+            right_rot[0] = 0 # roll
+            right_rot[1] = 0  # pitch
+            right_rot[2] = right_rot[2]   # yaw
+
+            self.right_wp = right_pos + self.curr_right_robot["pos"]
+            self.right_rot = right_rot + self.curr_right_robot["rot"]
             self.right_grip = -1.0 if R["trigger"] < 0.5 else 0
         else:
-            self.curr_right_controller = np.array(R["pos"])
-            self.curr_robot_position = self.right_wp
-            print("🟡 Right controller position updated:", self.curr_right_controller)
+            self.curr_right_controller["pos"] = np.array(R["pos"])
+            self.curr_right_controller["rot"] = np.array(R["rot"])
+            self.curr_right_robot["pos"] = self.right_wp
+            self.curr_right_robot["rot"] = self.right_rot
+            # print("🟡 Right controller position updated:", self.curr_right_controller["pos"])
+            print("🟡 Right controller rotation updated.", self.curr_right_controller["rot"])
 
         if self.left_activated:
             self.left_wp  = np.array(L["pos"]) * SCALE_POS + np.array(LEFT_HOME)
