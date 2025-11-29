@@ -9,4 +9,5 @@
     <include file="meshes/Female_NIST/Female_NIST.xml"/>
     <include file="meshes/Male_NIST/Male_NIST.xml"/>
     <include file="meshes/basket/basket.xml"/>
+    <include file="meshes/shoe/model.xml"/>
 </mujoco>

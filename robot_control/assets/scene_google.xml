@@ -6,5 +6,6 @@
     <include file="world.xml"/>
     <include file="dual_ur5_kinect.xml"/>
  
-    <include file="meshes/shoe/model.xml"/>
+    <!-- <include file="meshes/shoe/model.xml"/> -->
+    <include file="meshes/candybox/model.xml"/>
 </mujoco>

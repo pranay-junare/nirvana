@@ -157,7 +157,7 @@ class MoveVR(MujocoGymAppHighFidelity):
 if __name__ == "__main__":
     # mujoco = MoveVR("move_to_point.yaml", "kinect_environment.xml")
     # mujoco = MoveVR("move_to_point.yaml", "quad_insert.xml")
-    mujoco = MoveVR("move_to_point.yaml", "scene_vr.xml")
     # mujoco = MoveVR("move_to_point.yaml", "scene_google.xml")
+    mujoco = MoveVR("move_to_point.yaml", "scene_vr.xml")
 
     asyncio.run(mujoco.run_async())

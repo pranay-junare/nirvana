@@ -130,4 +130,8 @@ class MoveTest(MujocoGymAppHighFidelity):
 
 
 if __name__ == "__main__":
-    MoveTest("move_to_point.yaml", "kinect_environment.xml").run()
+    # MoveTest("move_to_point.yaml", "kinect_environment.xml").run()
+    # MoveTest("move_to_point.yaml", "scene_google.xml").run()
+    MoveTest("move_to_point.yaml", "scene_vr.xml").run()
+
+
