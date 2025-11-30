@@ -17,3 +17,4 @@ transforms3d==0.4.2
 zipp==3.19.2
 websockets
 asyncio
+ur_rtde

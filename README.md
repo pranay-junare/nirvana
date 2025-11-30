@@ -21,10 +21,12 @@ python -m robot_control.examples.teleop_vr
 - [x] Bimanual UR5 MujoCo Setup
 - [x] Websocket server for communication
 - [x] Keyboard based teleoperation
-- [ ] Gripper control with trigger
-- [ ] Visualize the XR controller inputs(matplotlib, cv2, etc) 
-- [ ] Mapping functions from XR-controller to Robot commands
-- [ ] Push based activatation
+- [x] Gripper control with trigger
+- [ ] App: Visualize Mujoco world in VR headset
+- [ ] App: Visualize the XR controller inputs(matplotlib, cv2, etc) 
+- [x] Mapping functions from XR-controller to Robot commands
+- [x] Push based activatation, Right arm control
+- [ ] Add sample objects(Google scan objects) for grasping demo
 - [ ] App: Renaming, check for Video stream, send buttons
  
 
