@@ -13,8 +13,8 @@ VR_IP = "100.70.51.33"
 VR_PORT = 8765
 SCALE_POS   = 0.8 # 0.6 works well
 SCALE_ROT   = 2.0
-RIGHT_HOME = [0.4, 0.4, 0.4]
-LEFT_HOME = [-0.4, 0.4, 0.4]
+RIGHT_HOME = [-0.4, 0.4, 0.4]
+LEFT_HOME = [0.4, 0.4, 0.4]
 
 
 class MoveVR(MujocoGymAppHighFidelity):
@@ -171,17 +171,18 @@ class MoveVR(MujocoGymAppHighFidelity):
         right_grip_index = 7
         left_grip_index  = 14
         while True:
-            targets["ur5right"].set_xyz(self.right_wp)
-            targets["ur5right"].set_abg(self.right_rot)
+            # Fix arm targets
+            targets["ur5right"].set_xyz(self.left_wp)
+            targets["ur5right"].set_abg(self.left_rot)
 
-            targets["ur5left"].set_xyz(self.left_wp)
-            targets["ur5left"].set_abg(self.left_rot)
+            targets["ur5left"].set_xyz(self.right_wp)
+            targets["ur5left"].set_abg(self.right_rot)
 
             ctrl = np.zeros_like(self.data.ctrl)
             idx, f = self.controller.generate(targets)
             for i, v in zip(idx, f): ctrl[i] = v
-            ctrl[right_grip_index] = self.right_grip  # Z = close, X = open
-            ctrl[left_grip_index]  = self.left_grip   # M = close, , = open
+            ctrl[left_grip_index] = self.right_grip  # Z = close, X = open
+            ctrl[right_grip_index]  = self.left_grip   # M = close, , = open
 
 
             self.do_simulation(ctrl, self.frame_skip)
