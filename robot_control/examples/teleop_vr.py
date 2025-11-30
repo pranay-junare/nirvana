@@ -39,6 +39,9 @@ class MoveVR(MujocoGymAppHighFidelity):
         self.right_activated = False
         self.left_activated  = False
 
+        self.right_home_activated = False
+        self.left_home_activated  = False
+
         self.curr_right_controller: Dict[str, np.ndarray] = dict()
         self.curr_right_controller["pos"] = np.array([0.20, 0.75, 0.25])
         self.curr_right_controller["rot"] = np.array([0, 0, 0])
@@ -47,8 +50,14 @@ class MoveVR(MujocoGymAppHighFidelity):
         self.curr_right_robot["pos"] = np.array(RIGHT_HOME)
         self.curr_right_robot["rot"] = np.array([0, -np.pi/2, 0])
         
-        self.vr_data_init = None  
 
+        self.curr_left_controller: Dict[str, np.ndarray] = dict()
+        self.curr_left_controller["pos"] = np.array([-0.1, 1.0, 0.35])
+        self.curr_left_controller["rot"] = np.array([0, 0, 0])
+
+        self.curr_left_robot: Dict[str, np.ndarray] = dict()
+        self.curr_left_robot["pos"] = np.array(LEFT_HOME)
+        self.curr_left_robot["rot"] = np.array([0, -np.pi/2, 0])
 
     @property
     def default_start_pt(self): 
@@ -64,9 +73,15 @@ class MoveVR(MujocoGymAppHighFidelity):
 
             try:
                 async for message in websocket:
-                    # print("📥 Data:", message)
+                    print("📥 Data:", message)
                     try:
-                        self.apply_vr_input(json.loads(message))
+                        safe_message = (
+                                            message.replace("False", "false")
+                                                .replace("True", "true")
+                                                .replace("None", "null")
+                                        )
+                                                                
+                        self.apply_vr_input(json.loads(safe_message))
                     except Exception as e:
                         print("⚠ Bad JSON:", e)
 
@@ -81,14 +96,23 @@ class MoveVR(MujocoGymAppHighFidelity):
     def apply_vr_input(self, msg):
         R, L = msg["right"], msg["left"]
 
-        if self.vr_data_init is None:
-            self.vr_data_init = msg  # first-time init
-            print("🎮 VR data initialized.", self.vr_data_init)
-            return
-
+        # Activation buttons
         self.right_activated = True if R["push"] > 0.5 else False
         self.left_activated  = True if L["push"] > 0.5 else False
 
+        # Home buttons
+        self.right_home_activated = R["button"]
+        self.left_home_activated  = L["button"]
+        if self.right_home_activated:
+            self.right_wp  = np.array(RIGHT_HOME)
+            self.right_rot = np.array([0, -np.pi/2, 0])
+            print("🏠 Right arm returned to home position.")
+        if self.left_home_activated:
+            self.left_wp  = np.array(LEFT_HOME)
+            self.left_rot = np.array([0, -np.pi/2, 0])
+            print("🏠 Left arm returned to home position.")
+
+        # Right arm
         if self.right_activated:        
             # Right position adjustment
             right_pos = (np.array(R["pos"]) - self.curr_right_controller["pos"]) * SCALE_POS 
@@ -111,17 +135,35 @@ class MoveVR(MujocoGymAppHighFidelity):
             self.curr_right_controller["rot"] = np.array(R["rot"])
             self.curr_right_robot["pos"] = self.right_wp
             self.curr_right_robot["rot"] = self.right_rot
-            # print("🟡 Right controller position updated:", self.curr_right_controller["pos"])
-            print("🟡 Right controller rotation updated.", self.curr_right_controller["rot"])
 
+        # Left arm
         if self.left_activated:
-            self.left_wp  = np.array(L["pos"]) * SCALE_POS + np.array(LEFT_HOME)
-            self.left_rot  = np.array(L["rot"]) * SCALE_ROT + np.array([0, -np.pi/2, 0])
+            # Left position adjustment
+            left_pos = (np.array(L["pos"]) - self.curr_left_controller["pos"]) * SCALE_POS
+            temp = left_pos[2]
+            left_pos[2] = left_pos[1]
+            left_pos[1] = -temp
+            left_pos[0] = -left_pos[0]
+
+            # Left rotation adjustment
+            left_rot = np.array(L["rot"]) * SCALE_ROT
+            left_rot[0] = 0 # roll
+            left_rot[1] = 0  # pitch
+            left_rot[2] = left_rot[2] # yaw
+
+            self.left_wp  = left_pos + self.curr_left_robot["pos"]
+            self.left_rot = left_rot + self.curr_left_robot["rot"]
             self.left_grip  = -1.0 if L["trigger"] < 0.5 else 0
+        else:
+            self.curr_left_controller["pos"] = np.array(L["pos"])
+            self.curr_left_controller["rot"] = np.array(L["rot"])
+            self.curr_left_robot["pos"] = self.left_wp
+            self.curr_left_robot["rot"] = self.left_rot
+
 
         print("✅ VR input applied.",
-              f"R_pos: {self.right_wp}, R_rot: {self.right_rot}, R_grip: {self.right_grip} | "
-              f"L_pos: {self.left_wp}, L_rot: {self.left_rot}, L_grip: {self.left_grip}"
+              f"\nR_pos: {self.right_wp} | R_grip: {self.right_grip} | R_rot: {self.right_rot}"
+              f"\nL_pos: {self.left_wp} | L_grip: {self.left_grip} | L_rot: {self.left_rot}"
         )
 
     async def sim_loop(self):
