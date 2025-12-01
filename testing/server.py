@@ -1,6 +1,6 @@
 import asyncio
 import websockets
-RECEIVER_IP = "100.70.51.33" # my local IP address
+RECEIVER_IP =  "10.131.249.198" #"100.70.51.33" # my local IP address
 RECEIVER_PORT = 8765
 i = 0
 

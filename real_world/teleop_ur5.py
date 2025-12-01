@@ -9,14 +9,15 @@ from ur5_robot.ur5 import UR5RobotController   # ⬅ ensure correct import path
 
 
 # =============================== CONFIG ===============================
-VR_IP       = "100.70.51.33"
+VR_IP       = "10.131.249.198"
 VR_PORT     = 8765
 
 SCALE_POS   = 0.6       # motion speed scaling
 SCALE_ROT   = 1.5       # rotation scaling
 Z_FLIP      = True      # VR → UR coord adjust (optional fine tune)
 
-ARM = "thunder"          # or "lightning"
+ARM = "lightning"
+ROBOT_IP = '10.33.55.90'
 USE_GRIPPER = True       # set False if no gripper
 # ====================================================================
 
@@ -25,7 +26,7 @@ class UR5VRControl:
 
     def __init__(self):
         print("[INIT] Connecting to UR5...")
-        self.robot = UR5RobotController(ARM, robot_ip=None, need_control=True, need_gripper=USE_GRIPPER)
+        self.robot = UR5RobotController(ARM, robot_ip=ROBOT_IP, need_control=True, need_gripper=USE_GRIPPER)
 
         if not self.robot.is_alive:
             raise RuntimeError("❌ UR5 connection failed.")
@@ -71,21 +72,22 @@ class UR5VRControl:
             delta = (np.array(R_hand["pos"]) - self.curr_controller["pos"]) * SCALE_POS
 
             #  Pose coordinate re-map (tune this only if needed)
-            delta[0] = -delta[0]
             temp = delta[2]
-            delta[2] = delta[1]
-            delta[1] = -temp
+            delta[2] = delta[0]
+            delta[0] = temp
+            delta[1] = -delta[1]
 
             target_pos = self.curr_robot_pose[:3] + delta
-
+            print("Computed target pos:", target_pos)
+            
             # ===== rotation control =====
             raw_rot = np.array(R_hand["rot"]) * SCALE_ROT
-            raw_rot[0] = 0     # lock roll
-            raw_rot[1] = 0     # lock pitch
-            yaw = raw_rot[2]
+            yaw = -raw_rot[2]
 
-            target_rot = self.curr_robot_pose[3:].copy()
-            target_rot[-1] += yaw
+            target_rot = np.zeros(3)
+            target_rot[0] = -np.pi/2
+            target_rot[1] = yaw
+            target_rot[2] = 0
 
             self.pose_target = np.concatenate([target_pos, target_rot])
 
@@ -128,7 +130,9 @@ class UR5VRControl:
     # ==========================================================
     async def robot_loop(self):
         while True:
+            # print(f"Moving to Pose: {self.pose_target}")
             self.robot.move_to_pose(self.pose_target, use_euler=True)
+            # print(f"Current Pose: {self.robot.get_current_pose(use_euler=True)}")
 
             if USE_GRIPPER:
                 if self.grip_state == 0: self.robot.gripper_close()
