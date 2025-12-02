@@ -23,9 +23,9 @@ THUNDER_HOME   = [2.992406129837036, -1.0877228540233155, 1.589470688496725, -0.
 
 SPEED = 0.1
 ACCELERATION = 0.1
-DT = 2
+DT = 0.5  # 0.2
 LOOKAHEAD_TIME = 0.2
-GAIN =200
+GAIN =100
 
 class UR5RobotController:
     def __init__(self, arm: str, robot_ip: str, need_control: bool = False, need_gripper: bool = False):
