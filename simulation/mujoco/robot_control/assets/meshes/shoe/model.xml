@@ -37,7 +37,7 @@
     <mesh name="model_collision_31" file="model_collision_31.obj"/>
   </asset>
   <worldbody>
-    <body name="model" pos="0.3 0.3 0">
+    <body name="model" pos="-0.3 0.3 0">
       <freejoint/>
       <inertial pos="0 0 0" mass="0.1" diaginertia="0.005 0.005 0.01"/>
       <geom material="material_0" mesh="model" type="mesh" group="2"/>
