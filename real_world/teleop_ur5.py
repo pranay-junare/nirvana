@@ -15,7 +15,7 @@ VR_IP       = "10.131.249.198"
 VR_PORT     = 8765
 
 SCALE_POS   = 0.8
-SCALE_ROT   = 0.5
+SCALE_ROT   = 0.7
 
 RIGHT_HOME  = [-0.40, 0.40, 0.40]
 LEFT_HOME   = [ 0.40, 0.40, 0.40]
@@ -111,7 +111,7 @@ class MoveVR_UR5:
             delta[0] = temp
             delta[1] = -delta[1]
 
-            delta_rot = np.array(R["rot"]) * SCALE_ROT
+            delta_rot = (np.array(R["rot"]) - self.curr_right_controller["rot"]) * SCALE_ROT
             delta_rot[0] = 0
             delta_rot[2] = 0
 
