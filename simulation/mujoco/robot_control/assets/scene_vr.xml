@@ -10,4 +10,7 @@
     <include file="meshes/Male_NIST/Male_NIST.xml"/>
     <include file="meshes/basket/basket.xml"/>
     <include file="meshes/shoe/model.xml"/>
+
+    <!-- Real objects  -->
+    <!-- <include file="meshes/gsplat_cheese/model.xml"/> -->
 </mujoco>
